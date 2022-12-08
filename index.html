@@ -2,10 +2,80 @@
 <html lang="en">
 	<head>
 		<meta charset="utf-8">
-		<title>D3 Test</title>
-		<script src="https://d3js.org/d3.v7.min.js"></script> 
+		<title>Web-based Data Visualization Using D3 - Seungoo Son</title>
+		<script src="https://d3js.org/d3.v4.js"></script> 
 	</head>
+
+
 	<body>
-		<script src="test.js"></script>
+        <style>
+            table {
+                width: 100%;    
+                }
+                table, th, td {
+                border: 1px solid #ff00bc;
+                text-align:center;
+                font-weight:bold;
+                }
+        </style>
+
+        <script src="visualization.js"></script>
+
+        <div id = "histogram" >
+            <div>
+                Histogram
+                <select onchange="histogramDropDown(this)">
+                    <option value="BeakLength">BeakLength</option>
+                    <option value="BeakDepth">BeakDepth</option>
+                    <option value="FlipperLength">FlipperLength</option>
+                    <option value="BodyMass">BodyMass</option>
+                </select>
+            </div>
+
+            <div style="float: left; width: 33%;">
+                Adelie
+                <div id = "adelie" ></div>
+            </div>
+            <div style="float: left; width: 33%;">
+                Gentoo
+                <div id = "gentoo" ></div>
+            </div>
+            <div style="float: left; width: 33%;">
+                Chinstrap
+                <div id = "chinstrap" ></div>
+            </div>
+        </div>
+
+        <div>
+            Parallel Coordinate Plot
+            <div id = "parallel" ></div>
+        </div>
+        
+        <div>
+            Scatter Plot
+            <div>
+                x:
+                <select onchange="scatterDropDownX(this)">
+                    <option value="BeakLength">BeakLength</option>
+                    <option value="BeakDepth">BeakDepth</option>
+                    <option value="FlipperLength">FlipperLength</option>
+                    <option value="BodyMass">BodyMass</option>
+                </select>
+            </div>
+            <div>
+                y:
+                <select onchange="scatterDropDownY(this)">
+                    <option value="BeakLength">BeakLength</option>
+                    <option value="BeakDepth">BeakDepth</option>
+                    <option value="FlipperLength">FlipperLength</option>
+                    <option value="BodyMass">BodyMass</option>
+                </select>
+            </div>
+            <div id = "scatter" ></div>
+        </div>
+
+        <div id = "table" >
+            Table
+        </div>
 	</body>
 </html> 
