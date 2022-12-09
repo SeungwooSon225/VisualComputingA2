@@ -1,4 +1,5 @@
 
+
 // set the dimensions and margins of the graph
 var margin = {top: 30, right: 30, bottom: 30, left: 40},
     width = 460 - margin.left - margin.right,
@@ -10,64 +11,28 @@ var longWidth = 1000 - margin.left - margin.right,
 var color = d3.scaleOrdinal()
                 .domain(["Adelie", "Gentoo", "Chinstrap" ])
                 .range([ "#43F0E8", "#F0DB43", "#F04387"]);
-// append the svg object to the body of the page
 
-const histogramDropDown = (target) => {
-    // 선택한 option의 value 값
-    console.log(target.value);
+var dataValue = [];
+var dataset = []
+var adelieNo = 0;
+var chinstrapNo = 0;
+var scatterX = 1;
+var scatterY = 1;
+var title
+var adelie ;
+var gentoo;
+var chinstrap;
 
-    d3.csv("penguins.csv", function(data)
-    {
-        var adelie = data.filter(function(d) { return (d.Species == 'Adelie')});
-        var gentoo = data.filter(function(d) { return (d.Species == 'Gentoo')});
-        var chinstrap = data.filter(function(d) { return (d.Species == 'Chinstrap')});
-        
-        d3.select("#adelie").select("svg").remove();
-        d3.select("#gentoo").select("svg").remove();
-        d3.select("#chinstrap").select("svg").remove();
-
-        drawHistogram(data, adelie, "#adelie", color("Adelie"), target.selectedIndex+1)
-        drawHistogram(data, gentoo, "#gentoo", color("Gentoo"), target.selectedIndex+1)
-        drawHistogram(data, chinstrap, "#chinstrap", color("Chinstrap"), target.selectedIndex+1)
-    });
-}
-
-
-var scatterX = 1
-var scatterY = 1
-
-const scatterDropDownX = (target) => {
-    // 선택한 option의 value 값
-    scatterX = target.selectedIndex + 1
-    
-    d3.csv("penguins.csv", function(data)
-    {
-        d3.select("#scatter").select("svg").remove();
-
-        var title = d3.keys(data[0]);
-        drawScatterPloat(data, title, scatterX, scatterY)
-    });
-}
-
-
-const scatterDropDownY = (target) => {
-    // 선택한 option의 value 값
-    scatterY = target.selectedIndex + 1
-
-    d3.csv("penguins.csv", function(data)
-    {
-        d3.select("#scatter").select("svg").remove();
-
-        var title = d3.keys(data[0]);
-        drawScatterPloat(data, title, scatterX, scatterY)
-    });
-}
 
 d3.csv("penguins.csv", function(data)
 {
-    var adelie = data.filter(function(d) { return (d.Species == 'Adelie')});
-    var gentoo = data.filter(function(d) { return (d.Species == 'Gentoo')});
-    var chinstrap = data.filter(function(d) { return (d.Species == 'Chinstrap')});
+    console.log(data)
+    saveData(data)
+    console.log(dataset)
+    
+    adelie = data.filter(function(d) { return (d.Species == 'Adelie')});
+    gentoo = data.filter(function(d) { return (d.Species == 'Gentoo')});
+    chinstrap = data.filter(function(d) { return (d.Species == 'Chinstrap')});
 
     drawTable(data)
 
@@ -77,9 +42,47 @@ d3.csv("penguins.csv", function(data)
     
     drawParallelCoordinatePlot(data)
 
-    var title = d3.keys(data[0]);
+    title = d3.keys(data[0]);
+
     drawScatterPloat(data, title, 1, 1)
+
+    drawTSNE(data)
 });
+
+
+const histogramDropDown = (target) => {
+    // 선택한 option의 value 값
+    console.log(target.value);
+    
+    d3.select("#adelie").select("svg").remove();
+    d3.select("#gentoo").select("svg").remove();
+    d3.select("#chinstrap").select("svg").remove();
+
+    drawHistogram(dataset, adelie, "#adelie", color("Adelie"), target.selectedIndex+1)
+    drawHistogram(dataset, gentoo, "#gentoo", color("Gentoo"), target.selectedIndex+1)
+    drawHistogram(dataset, chinstrap, "#chinstrap", color("Chinstrap"), target.selectedIndex+1) 
+}
+
+
+const scatterDropDownX = (target) => {
+    scatterX = target.selectedIndex + 1;
+
+    d3.select("#scatter").select("svg").remove();
+
+    drawScatterPloat(dataset, title, scatterX, scatterY)
+}
+
+
+const scatterDropDownY = (target) => {
+    // 선택한 option의 value 값
+    scatterY = target.selectedIndex + 1
+
+    d3.select("#scatter").select("svg").remove();
+
+    // var title = d3.keys(data[0]);
+    drawScatterPloat(dataset, title, scatterX, scatterY)
+}
+
 
 
 function drawTable(data)
@@ -266,4 +269,115 @@ function drawScatterPloat(data, title, attribute1, attribute2)
         .attr("cy", function (d) { return y(d[title[attribute2]]); } )
         .attr("r", 3)
         .style("fill", function(d){ return( color(d.Species))} )
+}
+
+
+function buttonClick()
+{
+    var perplexity = document.getElementById("perplexity").value;
+    var learingRate = document.getElementById("learingRate").value;
+    var nIter = document.getElementById("nIter").value;
+
+
+    d3.csv("penguins.csv", function(data)
+    {
+        d3.select("#tsne").select("svg").remove();
+        drawTSNE(data, perplexity, learingRate, nIter)
+    });
+}
+
+
+function saveData(data)
+{
+    for (i in data)
+    {
+        var value = [parseFloat(data[i].BeakLength), parseFloat(data[i].BeakDepth), parseFloat(data[i].FlipperLength), parseFloat(data[i].BodyMass)]
+        dataValue.push(value);
+
+        //var datarow = [data[i].Species, parseFloat(data[i].BeakLength), parseFloat(data[i].BeakDepth), parseFloat(data[i].FlipperLength), parseFloat(data[i].BodyMass)]
+        var datarow = {Species: data[i].Species, 
+                        BeakLength: parseFloat(data[i].BeakLength), 
+                        BeakDepth: parseFloat(data[i].BeakDepth), 
+                        FlipperLength: parseFloat(data[i].FlipperLength), 
+                        BodyMass: parseFloat(data[i].BodyMass)};
+        dataset.push(datarow);
+
+        if (data[i].Species == "Adelie") adelieNo++;
+        else if(data[i].Species == "Chinstrap") chinstrapNo++;
+    }
+
+    dataValue.pop()
+    dataset.pop()
+}
+
+
+function drawTSNE(data, perplexity=30, learingRate=100, nIter=500)
+{
+    // console.log(adelieNo);
+    // console.log(chinstrap);
+
+    let model = new TSNE({
+        dim: 2,
+        perplexity: perplexity,
+        earlyExaggeration: 10.0,
+        learningRate: learingRate,
+        nIter: nIter,
+        metric: 'euclidean'
+      });
+    
+    // inputData is a nested array which can be converted into an ndarray
+    // alternatively, it can be an array of coordinates (second argument should be specified as 'sparse')
+    model.init({
+        data: dataValue,
+        type: 'dense'
+    });
+    
+    // rerun without re-calculating pairwise distances, etc.
+    let [error, iter] = model.run();
+    
+    // `output` is unpacked ndarray (regular nested javascript array)
+    let output = model.getOutput();
+    
+    // `outputScaled` is `output` scaled to a range of [-1, 1]
+    let outputScaled = model.getOutputScaled();
+
+    // Draw plot
+    var svg = d3.select("#tsne")
+                .append("svg")
+                    .attr("width", longWidth + margin.left + margin.right)
+                    .attr("height", longHeight + margin.top + margin.bottom)
+                .append("g")
+                    .attr("transform",
+                        "translate(" + margin.left + "," + margin.top + ")");
+
+    // Add X axis
+    var x = d3.scaleLinear()
+        .domain([d3.min(outputScaled, function(d) { return + d[0] }), d3.max(outputScaled, function(d) { return + d[0] })])
+        .range([ 0, longWidth ]);
+    svg.append("g")
+        .attr("transform", "translate(0," + longHeight + ")")
+        .call(d3.axisBottom(x));
+    
+    // Add Y axis
+    var y = d3.scaleLinear()
+        .domain([d3.min(outputScaled, function(d) { return + d[1] }), d3.max(outputScaled, function(d) { return + d[1] })])
+        .range([ longHeight, 0]);
+    svg.append("g")
+        .call(d3.axisLeft(y));
+    
+    // Add dots
+    svg.append('g')
+        .selectAll("dot")
+        .data(outputScaled)
+        .enter()
+        .append("circle")
+        .attr("cx", function (d) { return x(d[0]); } )
+        .attr("cy", function (d) { return y(d[1]); } )
+        .attr("r", 3)
+        .style("fill", function(d, i)
+        { 
+            if (i < adelieNo) return color("Adelie");
+            else if (i < adelieNo + chinstrapNo) return color("Chinstrap")
+            else return color("Gentoo")
+        } )
 }

@@ -4,6 +4,16 @@
 		<meta charset="utf-8">
 		<title>Web-based Data Visualization Using D3 - Seungoo Son</title>
 		<script src="https://d3js.org/d3.v4.js"></script> 
+   
+        <script src="tsne.min.js"></script>
+        <script src="visualization.js"></script>
+        
+        <!-- <script defer src="https://pyscript.net/alpha/pyscript.js"></script>
+        <py-script src="tsne.py"> </py-script>
+        <py-env>
+            - scikit-learn
+            - pandas
+        </py-env> -->
 	</head>
 
 
@@ -13,17 +23,17 @@
                 width: 100%;    
                 }
                 table, th, td {
-                border: 1px solid #ff00bc;
+                border: 1px solid #0859f079;
                 text-align:center;
                 font-weight:bold;
                 }
         </style>
 
-        <script src="visualization.js"></script>
+        
 
         <div id = "histogram" >
             <div>
-                Histogram
+                <h2>Histogram</h2>
                 <select onchange="histogramDropDown(this)">
                     <option value="BeakLength">BeakLength</option>
                     <option value="BeakDepth">BeakDepth</option>
@@ -47,12 +57,12 @@
         </div>
 
         <div>
-            Parallel Coordinate Plot
+            <h2>Parallel Coordinate Plot</h2>
             <div id = "parallel" ></div>
         </div>
         
         <div>
-            Scatter Plot
+            <h2>Scatter Plot</h2>
             <div>
                 x:
                 <select onchange="scatterDropDownX(this)">
@@ -73,9 +83,30 @@
             </div>
             <div id = "scatter" ></div>
         </div>
+    
+        <div>
+            <h2>T-SNE</h2>
+            <div>
+                Perplexity:
+                <input type="text" value="30" id="perplexity" />
+            </div>
+            <div>
+                Learning Rate:
+                <input type="text" value="100" id="learingRate" />
+            </div>
+            <div>
+                Iteration:
+                <input type="text" value="500" id="nIter" />
+            </div>
+            <div>
+                <input type="button" value="Update" onclick="buttonClick()" />
+            </div>
+            
+            <div id = "tsne" ></div>
+        </div>
 
         <div id = "table" >
-            Table
+            <h2>Table</h2>
         </div>
 	</body>
 </html> 
