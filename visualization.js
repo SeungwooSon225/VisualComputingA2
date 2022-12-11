@@ -1,6 +1,13 @@
+/*-------------------------------------
+** Project Name     : Visual Computing Assignment 2: Web-based Data Visualization using D3
+** Author           : Seungwoo Son
+** Date             : 2022.12.11
+** References       : "D3.js Graph Gallery", https://d3https://d3 graph gallery.com/index.html
+                      "De.j s ] table 시 각 화", https://steemit.com/dclick/@codingman/d3js table 1544747008090
+                      "scienceai tsne js", https://github.com/scienceai/tsne js
+--------------------------------------*/
 
 
-// set the dimensions and margins of the graph
 var margin = {top: 30, right: 30, bottom: 30, left: 40},
     width = 460 - margin.left - margin.right,
     height = 300 - margin.top - margin.bottom;
@@ -51,7 +58,6 @@ d3.csv("penguins.csv", function(data)
 
 
 const histogramDropDown = (target) => {
-    // 선택한 option의 value 값
     console.log(target.value);
     
     d3.select("#adelie").select("svg").remove();
@@ -74,7 +80,6 @@ const scatterDropDownX = (target) => {
 
 
 const scatterDropDownY = (target) => {
-    // 선택한 option의 value 값
     scatterY = target.selectedIndex + 1
 
     d3.select("#scatter").select("svg").remove();
@@ -126,7 +131,6 @@ function drawHistogram(dataset, data, id, color, attribute)
             .attr("transform",
                 "translate(" + margin.left + "," + margin.top + ")");
 
-    // X axis: scale and draw:
     var x = d3.scaleLinear()
         .domain([d3.min(dataset, function(d) { return + d[title[attribute]] }) - 2, d3.max(dataset, function(d) { return + d[title[attribute]] }) + 2])
         .range([0, width]);
@@ -134,23 +138,21 @@ function drawHistogram(dataset, data, id, color, attribute)
         .attr("transform", "translate(0," + height + ")")
         .call(d3.axisBottom(x));
     
-    // set the parameters for the histogram
     var histogram = d3.histogram()
-        .value(function(d) { return d[title[attribute]]; })   // I need to give the vector of value
-        .domain(x.domain())  // then the domain of the graphic
-        .thresholds(30); // then the numbers of bins
+        .value(function(d) { return d[title[attribute]]; }) 
+        .domain(x.domain()) 
+        .thresholds(30); 
     
-    // And apply this function to data to get the bins
+
     var bins = histogram(data);
     
     // Y axis: scale and draw:
     var y = d3.scaleLinear()
         .range([height, 0]);
-        y.domain([0, d3.max(bins, function(d) { return d.length; })]);   // d3.hist has to be called before the Y axis obviously
+        y.domain([0, d3.max(bins, function(d) { return d.length; })]);  
     svg.append("g")
         .call(d3.axisLeft(y));
-    
-    // append the bar rectangles to the svg element
+
     svg.selectAll("rect")
         .data(bins)
         .enter()
@@ -175,29 +177,22 @@ function drawParallelCoordinatePlot(data)
                 .attr("transform",
                         "translate(" + margin.left + "," + margin.top + ")");
     
-    // Color scale: give me a specie name, I return a color
-    
-
-    // Here I set the list of dimension manually to control the order of axis:
     var dimensions = ["BeakLength", "BeakDepth", "FlipperLength", "BodyMass"]
 
-    // For each dimension, I build a linear scale. I store all in a y object
+
     var y = {}
     for (i in dimensions) {
         var name = dimensions[i]
 
         y[name] = d3.scaleLinear()
             .domain([d3.min(data, function(d) { return + d[name] }) - 2, d3.max(data, function(d) { return + d[name] }) + 2])
-            // --> different axis range for each group --> .domain( [d3.extent(data, function(d) { return +d[name]; })] )
             .range([longHeight, 0])
     }
 
-    // Build the X scale -> it find the best position for each Y axis
     x = d3.scalePoint()
             .range([0, longWidth])
             .domain(dimensions);
 
-    // The path function take a row of the csv as input, and return x and y coordinates of the line to draw for this raw.
     function path(d) {
         return d3.line()(dimensions.map(function(p) { return [x(p), y[p](d[p])]; }));
     }
@@ -207,24 +202,19 @@ function drawParallelCoordinatePlot(data)
         .data(data)
         .enter()
         .append("path")
-        .attr("class", function (d) { return "line " + d.Species } ) // 2 class for each line: 'line' and the group name
+        .attr("class", function (d) { return "line " + d.Species } ) 
         .attr("d",  path)
         .style("fill", "none" )
         .style("stroke", function(d){ return( color(d.Species))} )
         .style("opacity", 0.5)
 
 
-    // Draw the axis:
     svg.selectAll("myAxis")
-    // For each dimension of the dataset I add a 'g' element:
         .data(dimensions).enter()
         .append("g")
         .attr("class", "axis")
-        // I translate this element to its right position on the x axis
         .attr("transform", function(d) { return "translate(" + x(d) + ")"; })
-        // And I build the axis with the call function
         .each(function(d) { d3.select(this).call(d3.axisLeft().ticks(5).scale(y[d])); })
-        // Add axis title
         .append("text")
         .style("text-anchor", "middle")
         .attr("y", -9)
@@ -244,7 +234,6 @@ function drawScatterPloat(data, title, attribute1, attribute2)
                     .attr("transform",
                         "translate(" + margin.left + "," + margin.top + ")");
 
-    // Add X axis
     var x = d3.scaleLinear()
         .domain([d3.min(data, function(d) { return + d[title[attribute1]] }), d3.max(data, function(d) { return + d[title[attribute1]] })])
         .range([ 0, longWidth ]);
@@ -252,14 +241,12 @@ function drawScatterPloat(data, title, attribute1, attribute2)
         .attr("transform", "translate(0," + longHeight + ")")
         .call(d3.axisBottom(x));
     
-    // Add Y axis
     var y = d3.scaleLinear()
         .domain([d3.min(data, function(d) { return + d[title[attribute2]] }), d3.max(data, function(d) { return + d[title[attribute2]] })])
         .range([ longHeight, 0]);
     svg.append("g")
         .call(d3.axisLeft(y));
     
-    // Add dots
     svg.append('g')
         .selectAll("dot")
         .data(data)
@@ -294,7 +281,6 @@ function saveData(data)
         var value = [parseFloat(data[i].BeakLength), parseFloat(data[i].BeakDepth), parseFloat(data[i].FlipperLength), parseFloat(data[i].BodyMass)]
         dataValue.push(value);
 
-        //var datarow = [data[i].Species, parseFloat(data[i].BeakLength), parseFloat(data[i].BeakDepth), parseFloat(data[i].FlipperLength), parseFloat(data[i].BodyMass)]
         var datarow = {Species: data[i].Species, 
                         BeakLength: parseFloat(data[i].BeakLength), 
                         BeakDepth: parseFloat(data[i].BeakDepth), 
@@ -313,9 +299,6 @@ function saveData(data)
 
 function drawTSNE(data, perplexity=30, learingRate=100, nIter=500)
 {
-    // console.log(adelieNo);
-    // console.log(chinstrap);
-
     let model = new TSNE({
         dim: 2,
         perplexity: perplexity,
@@ -324,24 +307,18 @@ function drawTSNE(data, perplexity=30, learingRate=100, nIter=500)
         nIter: nIter,
         metric: 'euclidean'
       });
-    
-    // inputData is a nested array which can be converted into an ndarray
-    // alternatively, it can be an array of coordinates (second argument should be specified as 'sparse')
+
     model.init({
         data: dataValue,
         type: 'dense'
     });
     
-    // rerun without re-calculating pairwise distances, etc.
     let [error, iter] = model.run();
     
-    // `output` is unpacked ndarray (regular nested javascript array)
     let output = model.getOutput();
     
-    // `outputScaled` is `output` scaled to a range of [-1, 1]
     let outputScaled = model.getOutputScaled();
 
-    // Draw plot
     var svg = d3.select("#tsne")
                 .append("svg")
                     .attr("width", longWidth + margin.left + margin.right)
@@ -350,7 +327,6 @@ function drawTSNE(data, perplexity=30, learingRate=100, nIter=500)
                     .attr("transform",
                         "translate(" + margin.left + "," + margin.top + ")");
 
-    // Add X axis
     var x = d3.scaleLinear()
         .domain([d3.min(outputScaled, function(d) { return + d[0] }), d3.max(outputScaled, function(d) { return + d[0] })])
         .range([ 0, longWidth ]);
@@ -358,14 +334,12 @@ function drawTSNE(data, perplexity=30, learingRate=100, nIter=500)
         .attr("transform", "translate(0," + longHeight + ")")
         .call(d3.axisBottom(x));
     
-    // Add Y axis
     var y = d3.scaleLinear()
         .domain([d3.min(outputScaled, function(d) { return + d[1] }), d3.max(outputScaled, function(d) { return + d[1] })])
         .range([ longHeight, 0]);
     svg.append("g")
         .call(d3.axisLeft(y));
     
-    // Add dots
     svg.append('g')
         .selectAll("dot")
         .data(outputScaled)
